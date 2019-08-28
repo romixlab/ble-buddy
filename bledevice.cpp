@@ -1,7 +1,7 @@
 #include "bledevice.hpp"
 #include <QBluetoothUuid>
 #include <QLowEnergyController>
-#include "bleservice.h"
+#include "bleservice.hpp"
 
 Q_LOGGING_CATEGORY(bleDevice, "ble.device")
 

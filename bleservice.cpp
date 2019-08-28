@@ -21,7 +21,7 @@ Q_GLOBAL_STATIC(BLEServiceConfig, bleServiceConfigGlobal)
 
 BLEServiceConfig::BLEServiceConfig()
 {
-    QFile f(":/bleservices.json");
+    QFile f(":/3rdparty/ble-buddy/bleservices.json");
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qCInfo(bleService) << "No bleservices.json where found";
         return;

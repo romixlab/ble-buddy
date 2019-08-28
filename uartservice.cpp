@@ -1,5 +1,5 @@
 #include "uartservice.hpp"
-#include "bledevice.h"
+#include "bledevice.hpp"
 #include <QLowEnergyController>
 
 Q_LOGGING_CATEGORY(uartService, "ble.service.uart")

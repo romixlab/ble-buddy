@@ -1,7 +1,7 @@
 #include "bledevicefinder.hpp"
 #include <QDebug>
 #include <QBluetoothUuid>
-#include "bledevice.h"
+#include "bledevice.hpp"
 #include <QQmlEngine>
 
 BLEDeviceFinder::BLEDeviceFinder(QObject *parent) : QObject(parent)
@@ -56,7 +56,7 @@ QObject *BLEDeviceFinder::findByName(const QString &name) const
 
 void BLEDeviceFinder::startScan()
 {
-    qDeleteAll(m_devices);
+    //qDeleteAll(m_devices);
     m_devices.clear();
 
     qDebug() << "Scan starting";

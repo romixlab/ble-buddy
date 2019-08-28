@@ -5,7 +5,7 @@
 #include <QVariantList>
 #include <QBluetoothDeviceInfo>
 #include <QLoggingCategory>
-#include "bleservice.h"
+#include "bleservice.hpp"
 
 class QLowEnergyController;
 class BLEDevice : public QObject
