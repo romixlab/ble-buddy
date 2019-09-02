@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QLoggingCategory>
 #include <QLowEnergyService>
+#include "bleserviceinfo.hpp"
 
 class BLEDevice;
 
@@ -11,17 +12,26 @@ class UARTService : public QObject
 {
     Q_OBJECT
 public:
-    explicit UARTService(QObject *parent = nullptr);
-    UARTService(BLEDevice *device, QObject *parent = nullptr);
+    UARTService(BLEServiceInfo uartService, QObject *parent = nullptr);
+
+    /// UART service state
+    enum State {
+        DEVICE_WAIT, ///< Waiting for a valid BLE device object
+        INIT,        ///< Initializing device
+        READY        ///< Working normally
+    };
+    Q_ENUM(State)
+    State state() const;
 
     Q_INVOKABLE void setDevice(QObject *device);
 
 signals:
+    void stateChanged();
     void rx(const QString &s);
     void rxbin(const QByteArray &bytes);
 
 public slots:
-    void tx(const QString &s);
+    void tx(const QString &str);
     void txbin(const QByteArray &bytes);
 
 private slots:
@@ -30,6 +40,8 @@ private slots:
     void serviceCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
     void serviceCharacteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 private:
+    State m_state;
+    BLEServiceInfo m_uartServiceInfo;
     BLEDevice *m_device;
     QLowEnergyService *m_uartService;
     QLowEnergyCharacteristic m_txCharacteristic; // incoming data from device

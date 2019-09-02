@@ -5,7 +5,7 @@
 #include <QVariantList>
 #include <QBluetoothDeviceInfo>
 #include <QLoggingCategory>
-#include "bleservice.hpp"
+#include "bleserviceinfo.hpp"
 
 class QLowEnergyController;
 class BLEDevice : public QObject
@@ -35,7 +35,7 @@ public:
 
     QString name() const;
     QString address() const;
-    QList<BLEService> services() const;
+    QList<BLEServiceInfo> services() const;
     bool servicesComplete() const;
     QBluetoothDeviceInfo device() const;
     QLowEnergyController *controller() const;
@@ -56,7 +56,7 @@ signals:
 private:
     State m_state;
     QBluetoothDeviceInfo m_device;
-    QList<BLEService> m_services;
+    QList<BLEServiceInfo> m_services;
     bool m_servicesComplete;
     QLowEnergyController *m_controller;
 };

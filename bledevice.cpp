@@ -1,7 +1,7 @@
 #include "bledevice.hpp"
 #include <QBluetoothUuid>
 #include <QLowEnergyController>
-#include "bleservice.hpp"
+#include "bleserviceinfo.hpp"
 
 Q_LOGGING_CATEGORY(bleDevice, "ble.device")
 
@@ -10,7 +10,7 @@ Q_LOGGING_CATEGORY(bleDevice, "ble.device")
 //}
 
 BLEDevice::BLEDevice(const QBluetoothDeviceInfo &device, QObject *parent) :
-    m_device(device), QObject(parent)
+    QObject(parent), m_device(device)
 {
     QBluetoothDeviceInfo::DataCompleteness completeness;
     QList<QBluetoothUuid> uuids = m_device.serviceUuids(&completeness);
@@ -18,7 +18,7 @@ BLEDevice::BLEDevice(const QBluetoothDeviceInfo &device, QObject *parent) :
     m_controller = nullptr;
 
     foreach (const QBluetoothUuid &uuid, uuids) {
-        BLEService service(uuid.toString());
+        BLEServiceInfo service(uuid);
         m_services.append(service);
     }
     emit servicesChanged();
@@ -63,7 +63,7 @@ QString BLEDevice::address() const
 #endif
 }
 
-QList<BLEService> BLEDevice::services() const
+QList<BLEServiceInfo> BLEDevice::services() const
 {
     return m_services;
 }
@@ -124,7 +124,7 @@ void BLEDevice::establishConnection()
 
 void BLEDevice::serviceDiscovered(const QBluetoothUuid &service)
 {
-    BLEService bleService(service.toString());
+    BLEServiceInfo bleService(service);
     qCInfo(bleDevice) << "Service discovered" << bleService.uuid() << "(" << bleService.name() << ")";
     if (!m_services.contains(bleService)) {
         m_services.append(bleService);
