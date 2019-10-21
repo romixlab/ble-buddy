@@ -15,6 +15,7 @@ Q_LOGGING_CATEGORY(uartService, "ble.service.uart")
 UARTService::UARTService(BLEServiceInfo uartServiceInfo, QObject *parent) : QObject(parent),
     m_uartServiceInfo(uartServiceInfo), m_device(nullptr), m_uartService(nullptr)
 {
+    m_state = State::DeviceWait;
 }
 
 UARTService::State UARTService::state() const
@@ -27,7 +28,7 @@ void UARTService::setDevice(QObject *device)
     m_device = qobject_cast<BLEDevice *>(device);
     if (m_device == nullptr)
         return;
-    m_state = State::INIT;
+    m_state = State::Init;
     emit stateChanged();
     connect(m_device, &BLEDevice::stateChanged,
             this,     &UARTService::onDeviceStateChanged);
@@ -35,24 +36,30 @@ void UARTService::setDevice(QObject *device)
 
 void UARTService::tx(const QString &str)
 {
-    m_uartService->writeCharacteristic(m_rxCharacteristic, str.toUtf8());
+    if (m_uartService)
+        m_uartService->writeCharacteristic(m_rxCharacteristic, str.toUtf8(), QLowEnergyService::WriteWithoutResponse);
 }
 
 void UARTService::txbin(const QByteArray &bytes)
 {
-    m_uartService->writeCharacteristic(m_rxCharacteristic, bytes);
+    if (m_uartService) {
+        qDebug() << "real txbin";
+        m_uartService->writeCharacteristic(m_rxCharacteristic, bytes, QLowEnergyService::WriteWithoutResponse);
+    }
 }
 
 void UARTService::onDeviceStateChanged()
 {
     if (m_device->state() == BLEDevice::Connected) {
+        if (m_uartService)
+            return;
         foreach (const BLEServiceInfo &service, m_device->services()) {
             if (service.name().contains("uart", Qt::CaseInsensitive)) {
                 qCInfo(uartService) << "found uart service, searching tx/rx characteristics...";
                 m_uartService = m_device->controller()->createServiceObject(QBluetoothUuid(service.uuid()), this);
                 if (!m_uartService) {
                     qCWarning(uartService) << "Failed to create service, even though it is found";
-                    m_state = State::DEVICE_WAIT;
+                    m_state = State::DeviceWait;
                     emit stateChanged();
                     return;
                 }
@@ -72,7 +79,8 @@ void UARTService::onDeviceStateChanged()
                m_device->state() == BLEDevice::Error) {
         if (m_uartService) {
             delete m_uartService;
-            m_state = State::DEVICE_WAIT;
+            m_uartService = nullptr;
+            m_state = State::DeviceWait;
             emit stateChanged();
         }
     }
@@ -90,8 +98,7 @@ void UARTService::serviceStateChanged(const QLowEnergyService::ServiceState stat
                     m_uartServiceInfo.characteristic("tx") );
         if (!(m_rxCharacteristic.isValid() && m_txCharacteristic.isValid())) {
             qCWarning(uartService) << "rx or tx characteristic is invalid";
-            m_state = State::DEVICE_WAIT;
-            emit stateChanged();
+            m_device->controller()->disconnectFromDevice();
             return;
         }
         QLowEnergyDescriptor txDescriptor = m_txCharacteristic.descriptor(
@@ -99,12 +106,11 @@ void UARTService::serviceStateChanged(const QLowEnergyService::ServiceState stat
         if (txDescriptor.isValid()) {
             qCInfo(uartService) << "Enabling notifications.";
             m_uartService->writeDescriptor(txDescriptor, QByteArray::fromHex("0100"));
-            m_state = State::READY;
+            m_state = State::Ready;
             emit stateChanged();
         } else {
             qCWarning(uartService) << "Invalid tx descriptor";
-            m_state = State::DEVICE_WAIT;
-            emit stateChanged();
+            m_device->controller()->disconnectFromDevice();
         }
         break;
     }

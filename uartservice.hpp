@@ -11,14 +11,15 @@ class BLEDevice;
 class UARTService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(State state READ state NOTIFY stateChanged)
 public:
     UARTService(BLEServiceInfo uartService, QObject *parent = nullptr);
 
     /// UART service state
     enum State {
-        DEVICE_WAIT, ///< Waiting for a valid BLE device object
-        INIT,        ///< Initializing device
-        READY        ///< Working normally
+        DeviceWait, ///< Waiting for a valid BLE device object
+        Init,        ///< Initializing device
+        Ready        ///< Working normally
     };
     Q_ENUM(State)
     State state() const;

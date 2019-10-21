@@ -19,7 +19,7 @@ BLEDeviceFinder::BLEDeviceFinder(QObject *parent) : QObject(parent)
     connect(m_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled,
             this,                   &BLEDeviceFinder::scanFinished);
 
-    m_state = IDLE;
+    m_state = Idle;
 }
 
 BLEDeviceFinder::~BLEDeviceFinder()

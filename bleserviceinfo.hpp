@@ -17,7 +17,7 @@ public:
 
     static void loadDefinitions(const QString &filename);
 
-    BLEServiceInfo byname(const QString &servicename);
+    static BLEServiceInfo byname(const QString &servicename);
     QBluetoothUuid characteristic(const QString &name) const;
 
     QString name() const;

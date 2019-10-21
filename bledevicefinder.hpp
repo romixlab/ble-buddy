@@ -17,7 +17,7 @@ public:
     ~BLEDeviceFinder();
 
     enum State {
-        IDLE,
+        Idle,
         Scanning,
         ScanSucceeded,
         Error

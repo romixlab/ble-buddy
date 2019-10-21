@@ -16,7 +16,7 @@ public:
     struct ble_config_entry {
         QString name;
         QString icon;
-        QHash<QBluetoothUuid, QString> characteristics;
+        QHash<QString, QBluetoothUuid> characteristics;
     };
     QHash<QBluetoothUuid, ble_config_entry> entries;
 };
@@ -46,13 +46,13 @@ void BLEServiceInfoConfig::loadDefinitions(const QString &filename)
         }
         QString icon = serviceMap["icon"].toString();
 
-        QHash<QBluetoothUuid, QString> characteristics;
+        QHash<QString, QBluetoothUuid> characteristics;
         QVariantList characteristicsList = serviceMap["characteristics"].toList();
         foreach(const QVariant &c, characteristicsList) {
             QVariantMap cm = c.toMap();
             characteristics.insert(
-                        QBluetoothUuid(cm["uuid"].toString()),
-                        cm["name"].toString() );
+                        cm["name"].toString(),
+                        QBluetoothUuid(cm["uuid"].toString()) );
         }
         qCDebug(bleServiceInfo) << name << characteristics;
         entries.insert(uuid, ble_config_entry{name, icon, characteristics});
@@ -82,6 +82,16 @@ BLEServiceInfo BLEServiceInfo::byname(const QString &servicename)
         }
     }
     return BLEServiceInfo();
+}
+
+QBluetoothUuid BLEServiceInfo::characteristic(const QString &name) const
+{
+    BLEServiceInfoConfig *config = bleServiceConfigGlobal;
+    if (!config) {
+        return QBluetoothUuid();
+    }
+    const BLEServiceInfoConfig::ble_config_entry &entry = config->entries.value(m_uuid);
+    return entry.characteristics.value(name);
 }
 
 void BLEServiceInfo::loadDefinitions(const QString &filename)
