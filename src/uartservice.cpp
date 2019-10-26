@@ -43,7 +43,6 @@ void UARTService::tx(const QString &str)
 void UARTService::txbin(const QByteArray &bytes)
 {
     if (m_uartService) {
-        qDebug() << "real txbin";
         m_uartService->writeCharacteristic(m_rxCharacteristic, bytes, QLowEnergyService::WriteWithoutResponse);
     }
 }

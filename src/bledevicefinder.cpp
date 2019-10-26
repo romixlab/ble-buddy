@@ -1,8 +1,8 @@
-#include "bledevicefinder.hpp"
-#include <QDebug>
 #include <QBluetoothUuid>
+#include <QDebug>
+
+#include "bledevicefinder.hpp"
 #include "bledevice.hpp"
-#include <QQmlEngine>
 
 BLEDeviceFinder::BLEDeviceFinder(QObject *parent) : QObject(parent)
 {
